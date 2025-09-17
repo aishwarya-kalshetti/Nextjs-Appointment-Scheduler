@@ -1,13 +1,13 @@
 import React from "react";
 
-import AppointmentForm from "../components/AppointmentForm";
-
+//import AppointmentForm from "../components/AppointmentForm";
+import UserBooking from "@/components/UserBooking";
 export default function HomePage() {
   return (
     <section className="bg-white rounded-lg shadow p-6">
       <h2 className="text-2xl font-medium mb-4">Book an Appointment</h2>
       <p className="text-sm text-slate-600 mb-4">Enter name, choose date and time.</p>
-      <AppointmentForm />
+      <UserBooking />
     </section>
   );
 }

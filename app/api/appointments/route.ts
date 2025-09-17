@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
+import dayjs from "dayjs";
 
-// GET all appointments
-export async function GET() {
+// GET
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const date = url.searchParams.get("date"); 
+
     const client = await clientPromise;
     const db = client.db("appointments");
     const collection = db.collection("bookings");
 
-    const appointments = await collection.find({}).toArray();
+    const query = date ? { date } : {};
+    const appointments = await collection.find(query).toArray();
 
     const formatted = appointments.map((a) => ({
       ...a,
@@ -22,7 +27,7 @@ export async function GET() {
   }
 }
 
-// POST a new appointment
+// POST 
 export async function POST(req: Request) {
   try {
     const { name, date, time } = await req.json();
@@ -33,7 +38,17 @@ export async function POST(req: Request) {
     const db = client.db("appointments");
     const collection = db.collection("bookings");
 
-    const result = await collection.insertOne({ name, date, time, createdAt: new Date() });
+    const exists = await collection.findOne({ date, time });
+    if (exists) {
+      return NextResponse.json({ error: "Time slot already booked" }, { status: 400 });
+    }
+
+    const result = await collection.insertOne({
+      name,
+      date,
+      time,
+      createdAt: new Date(),
+    });
 
     return NextResponse.json({ ...result, success: true });
   } catch (err) {
